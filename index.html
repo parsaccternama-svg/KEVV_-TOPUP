@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KEVV_ ADMIN PANEL</title>
+<style>
+:root{--bg:#080f20;--panel:#111d34;--panel2:#172641;--line:#263957;--blue:#3988ff;--cyan:#39d5e8;--text:#eef5ff;--muted:#9eb0ca;--green:#42d69b}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#07101f,#0c1830);font:15px Arial,sans-serif;color:var(--text)}
+.wrap{max-width:1100px;margin:auto;padding:24px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}.brand{font-weight:800;font-size:23px;letter-spacing:.5px}.brand span{color:var(--cyan)}.tag{color:#b9d4ff;background:#142b4d;border:1px solid #294a75;padding:7px 11px;border-radius:20px;font-size:12px}
+h1{font-size:26px;margin:8px 0}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}.card,.section{background:linear-gradient(160deg,var(--panel),#0e1a30);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 12px 30px #0002}.label{font-size:13px;color:var(--muted)}.value{font-size:26px;font-weight:800;margin-top:10px}.green{color:var(--green)}.blue{color:#78b3ff}
+.content{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}.section h2{font-size:17px;margin:0 0 14px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}
+button{border:0;border-radius:10px;padding:11px 15px;font-weight:700;cursor:pointer;background:var(--blue);color:white}button.secondary{background:#203653;color:#dceaff;border:1px solid #385274}button:disabled{opacity:.45;cursor:not-allowed}
+input{width:100%;padding:12px;border-radius:9px;background:#0a1528;color:white;border:1px solid #355071;margin:7px 0 13px}label{font-size:13px;color:var(--muted)}.notice{background:#132b43;border:1px solid #285174;padding:13px;border-radius:12px;color:#c9e5ff;font-size:13px;line-height:1.5}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:11px 8px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:600}.status{color:#ffd27b}.hidden{display:none}.login{max-width:390px;margin:9vh auto}.login .card{padding:25px}.foot{font-size:12px;color:var(--muted);text-align:center;margin:22px 0}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}.content{grid-template-columns:1fr}.wrap{padding:16px 16px 100px}.value{font-size:22px}.top{align-items:flex-start;flex-direction:column}table{min-width:560px}.tablewrap{overflow:auto}}
+.bottomnav{position:fixed;bottom:0;left:0;right:0;z-index:10;display:flex;justify-content:space-around;gap:4px;padding:9px 8px calc(9px + env(safe-area-inset-bottom));background:rgba(13,37,67,.97);border-top:1px solid #31547b;backdrop-filter:blur(12px)}
+.navbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:8px 3px;background:transparent;color:#b8cce5;border:1px solid transparent;border-radius:13px;font-size:11px}
+.navbtn .ico{font-size:21px;line-height:1}.navbtn.active{background:#1d5c97;border-color:#4a91d1;color:white}
+.page{display:none}.page.active{display:block}
+@media(min-width:761px){.bottomnav{left:50%;right:auto;transform:translateX(-50%);width:min(720px,95vw);border:1px solid #31547b;border-radius:18px 18px 0 0}}
+</style>
+</head>
+<body>
+<div id="login" class="login">
+ <div class="card">
+  <div class="brand">KEVV_<span> ADMIN</span></div><p class="muted">Masuk ke dashboard pengelola</p>
+  <label>Username</label><input id="username" placeholder="Masukkan username" autocomplete="username">
+  <label>Password</label>
+  <div style="display:flex;gap:8px;align-items:center"><input id="password" type="password" placeholder="Masukkan password" autocomplete="current-password"><button class="secondary" type="button" onclick="togglePassword('password',this)">Lihat</button></div>
+  <button style="width:100%" onclick="login()">Masuk</button>
+  <p id="loginMsg" class="muted" style="font-size:12px"></p>
+  <div class="notice">Demo tampilan saja. Login ini belum memakai server dan tidak aman untuk melindungi data atau transaksi sungguhan.</div>
+ </div>
+</div>
+<div id="app" class="hidden">
+ <div class="wrap">
+  <div class="top"><div><div class="brand">KEVV_<span> ADMIN</span></div><div class="muted" style="font-size:13px">Pusat kontrol toko digital</div></div><div><span class="tag">MODE DEMO</span> <button class="secondary" onclick="logout()">Keluar</button></div></div>
+  <main>
+  <section id="page-home" class="page active">
+  <h1>Beranda</h1><div class="muted">Ringkasan KEVV_ TOPUP</div>
+  <div class="grid">
+   <div class="card"><div class="label">Saldo keuntungan tercatat</div><div class="value green" id="balance">Rp0</div></div>
+   <div class="card"><div class="label">Total pesanan</div><div class="value" id="orders">0</div></div>
+   <div class="card"><div class="label">Menunggu pencairan</div><div class="value blue" id="pending">Rp0</div></div>
+   <div class="card"><div class="label">Total dicairkan (demo)</div><div class="value" id="paid">Rp0</div></div>
+  </div>
+  <div class="content">
+   <div class="section">
+    <h2>Riwayat transaksi</h2>
+    <div class="tablewrap"><table><thead><tr><th>Waktu</th><th>Pesanan</th><th>Produk</th><th>Keuntungan</th><th>Status</th></tr></thead><tbody id="transactions"><tr><td colspan="5" class="muted">Belum ada transaksi demo.</td></tr></tbody></table></div>
+    <p class="muted" style="font-size:12px">Data pada prototipe ini hanya contoh lokal dan tidak berasal dari pembayaran pelanggan.</p>
+   </div>
+   <div class="section">
+    <h2>Pengajuan pencairan manual</h2>
+    <div class="label">Saldo tersedia (demo)</div><div class="value green" id="withdrawBalance">Rp0</div>
+    <label>Jumlah pencairan (Rp)</label><input id="amount" type="number" min="1000" step="1000" placeholder="Contoh: 10000">
+    <label>Catatan tujuan (opsional)</label><input id="destination" placeholder="Contoh: GoPay terdaftar">
+    <button onclick="requestWithdraw()">Ajukan pencairan</button>
+    <div id="withdrawMsg" class="muted" style="font-size:12px;margin-top:10px"></div>
+    <div class="notice" style="margin-top:15px">Pencairan sungguhan belum aktif. Hubungkan penyedia pembayaran resmi dan backend server terlebih dahulu. Jangan simpan PIN/OTP GoPay di website.</div>
+   </div>
+  </div>
+  </section>
+  <section id="page-profit" class="page">
+   <h1>Keuntungan</h1><div class="muted">Pantau keuntungan dari transaksi yang sudah terverifikasi.</div>
+   <div class="grid"><div class="card"><div class="label">Keuntungan tersedia</div><div class="value green">Rp0</div></div><div class="card"><div class="label">Target keuntungan</div><div class="value">Atur nanti</div></div></div>
+   <div class="section"><h2>Rincian keuntungan</h2><div class="row"><span>Komisi per produk</span><strong>Rp1.000</strong></div><div class="row"><span>Transaksi terverifikasi</span><strong>0</strong></div><div class="row"><span>Total keuntungan</span><strong class="green">Rp0</strong></div><p class="muted" style="font-size:12px">Angka akan terisi setelah backend transaksi resmi terhubung.</p></div>
+  </section>
+  <section id="page-users" class="page">
+   <h1>Total orang</h1><div class="muted">Ringkasan pelanggan KEVV_ TOPUP.</div>
+   <div class="grid"><div class="card"><div class="label">Total pelanggan</div><div class="value">0</div></div><div class="card"><div class="label">Pelanggan hari ini</div><div class="value">0</div></div></div>
+   <div class="section"><h2>Aktivitas pelanggan</h2><div class="row"><span>Pelanggan terdaftar</span><strong id="registeredCount">0</strong></div><div class="row"><span>Pelanggan aktif</span><strong id="activeCount">0</strong></div><div class="row"><span>Pesanan berjalan</span><strong>0</strong></div></div>
+   <div class="section" style="margin-top:14px"><h2>Data akun & riwayat login</h2>
+    <p class="muted" style="font-size:12px">Admin dapat melihat username, nama, email, dan waktu login terakhir setelah backend akun terhubung.</p>
+    <div class="tablewrap"><table><thead><tr><th>Username</th><th>Nama</th><th>Email Google</th><th>Login terakhir</th><th>Status</th></tr></thead><tbody id="userAccountRows"><tr><td colspan="5" class="muted">Belum ada data akun. Data akan muncul setelah sistem login resmi terhubung.</td></tr></tbody></table></div>
+    <div class="notice" style="margin-top:14px"><strong>Privasi password:</strong> Password asli tidak ditampilkan dan tidak boleh disimpan dalam bentuk yang bisa dibaca. Sistem yang aman hanya menyimpan hash password di server. Untuk login Google, admin dapat melihat email dan nama profil yang diizinkan, bukan password Google.</div>
+   </div>
+  </section>
+  <section id="page-cashout" class="page">
+   <h1>Pencairan uang</h1><div class="muted">Ajukan pencairan keuntungan secara manual.</div>
+   <div class="section"><h2>Saldo untuk dicairkan</h2><div class="value green">Rp0</div><label>Jumlah pencairan (Rp)</label><input id="amount2" type="number" min="1000" step="1000" placeholder="Masukkan jumlah"><label>Tempat pencairan</label><input id="destination2" placeholder="Contoh: GoPay / rekening terdaftar"><button onclick="document.getElementById('amount').value=document.getElementById('amount2').value;document.getElementById('destination').value=document.getElementById('destination2').value;requestWithdraw()">Ajukan pencairan</button><p id="cashoutInfo" class="muted" style="font-size:12px">Simulasi saja; pencairan sungguhan belum aktif.</p></div>
+   <div class="section" style="margin-top:14px"><h2>Riwayat pencairan</h2><p class="muted">Belum ada pengajuan.</p></div>
+  </section>
+  <section id="page-monitor" class="page">
+   <h1>Pengamatan KEVV_ TOPUP</h1><div class="muted">Pantau kondisi toko dalam satu tempat.</div>
+   <div class="grid"><div class="card"><div class="label">Status website</div><div class="value blue">Demo</div></div><div class="card"><div class="label">Status pembayaran</div><div class="value status">Belum terhubung</div></div></div>
+   <div class="section"><h2>Pusat pemantauan</h2><div class="row"><span>Pesanan masuk</span><strong>0</strong></div><div class="row"><span>Pembayaran terverifikasi</span><strong>0</strong></div><div class="row"><span>Pesanan gagal</span><strong>0</strong></div><div class="row"><span>Koneksi supplier API</span><strong class="status">Belum terhubung</strong></div></div>
+  </section>
+  <section id="page-profile" class="page">
+  <h1>Profil & keamanan</h1><div class="muted">Kelola identitas dan password admin.</div>
+  <div class="section" style="margin-top:14px">
+   <h2>Profil admin & keamanan</h2>
+   <div class="row"><span>Nama profil</span><strong id="profileName">Admin KEVV_</strong></div>
+   <label>Ganti nama profil</label><input id="newProfileName" placeholder="Masukkan nama profil baru">
+   <button class="secondary" onclick="saveProfile()">Simpan nama</button>
+   <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+   <h2>Ganti password</h2>
+   <label>Password saat ini</label>
+   <div style="display:flex;gap:8px;align-items:center"><input id="oldPassword" type="password" placeholder="Password saat ini" style="margin-bottom:13px"><button class="secondary" type="button" onclick="togglePassword('oldPassword',this)" style="margin-bottom:13px">Lihat</button></div>
+   <label>Password baru</label>
+   <div style="display:flex;gap:8px;align-items:center"><input id="newPassword" type="password" placeholder="Minimal 8 karakter" style="margin-bottom:13px"><button class="secondary" type="button" onclick="togglePassword('newPassword',this)" style="margin-bottom:13px">Lihat</button></div>
+   <label>Ulangi password baru</label>
+   <div style="display:flex;gap:8px;align-items:center"><input id="confirmPassword" type="password" placeholder="Ketik ulang password baru" style="margin-bottom:13px"><button class="secondary" type="button" onclick="togglePassword('confirmPassword',this)" style="margin-bottom:13px">Lihat</button></div>
+   <button onclick="changePassword()">Simpan password baru</button>
+   <div id="profileMsg" class="muted" style="font-size:12px;margin-top:10px"></div>
+   <div class="notice" style="margin-top:14px">Fitur profil dan ganti password ini bekerja sebagai demo pada browser ini. Untuk website online, akun dan password harus dikelola di server dengan penyimpanan password yang di-hash, bukan di file HTML.</div>
+  </div>
+  <div class="section" style="margin-top:14px"><h2>Pengaturan toko</h2>
+   <div class="row"><span>Tambahan harga per produk</span><strong>Rp1.000</strong></div>
+   <div class="row"><span>Metode verifikasi</span><strong>Gabungan bot + admin</strong></div>
+   <div class="row"><span>Metode pencairan</span><strong>Manual (perlu integrasi resmi)</strong></div>
+  </div>
+  </section>
+  </main>
+  <div class="foot">KEVV_ TOPUP • Prototipe dashboard admin • Tidak memproses uang sungguhan</div>
+ </div>
+ <nav class="bottomnav" aria-label="Navigasi admin">
+  <button class="navbtn active" data-page="home" onclick="showPage('home',this)"><span class="ico">⌂</span>Beranda</button>
+  <button class="navbtn" data-page="profit" onclick="showPage('profit',this)"><span class="ico">↗</span>Keuntungan</button>
+  <button class="navbtn" data-page="users" onclick="showPage('users',this)"><span class="ico">♙</span>Total Orang</button>
+  <button class="navbtn" data-page="cashout" onclick="showPage('cashout',this)"><span class="ico">▣</span>Cairkan</button>
+  <button class="navbtn" data-page="monitor" onclick="showPage('monitor',this)"><span class="ico">◉</span>Pengamatan</button>
+  <button class="navbtn" data-page="profile" onclick="showPage('profile',this)"><span class="ico">⚙</span>Profil</button>
+ </nav>
+</div>
+<script>
+const fmt=n=>'Rp'+Number(n||0).toLocaleString('id-ID');
+function showPage(name,button){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ const page=document.getElementById('page-'+name);if(page)page.classList.add('active');
+ document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));
+ if(button)button.classList.add('active');
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+const defaultPassword='kevv-demo-2026';
+function currentPassword(){return sessionStorage.getItem('kevvDemoPassword')||defaultPassword}
+function togglePassword(id,button){
+ const field=document.getElementById(id);
+ const showing=field.type==='password';
+ field.type=showing?'text':'password';
+ button.textContent=showing?'Sembunyikan':'Lihat';
+}
+function login(){
+ const u=document.getElementById('username').value.trim(),p=document.getElementById('password').value;
+ if(u==='admin'&&p===currentPassword()){
+  document.getElementById('login').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  loadProfile();
+ } else document.getElementById('loginMsg').textContent='Username atau password salah.';
+}
+function logout(){document.getElementById('app').classList.add('hidden');document.getElementById('login').classList.remove('hidden');document.getElementById('password').value=''}
+function loadProfile(){
+ const name=sessionStorage.getItem('kevvDemoProfile')||'Admin KEVV_';
+ document.getElementById('profileName').textContent=name;
+ document.getElementById('newProfileName').value=name;
+}
+function saveProfile(){
+ const name=document.getElementById('newProfileName').value.trim(),msg=document.getElementById('profileMsg');
+ if(!name){msg.textContent='Nama profil tidak boleh kosong.';return}
+ sessionStorage.setItem('kevvDemoProfile',name);loadProfile();msg.textContent='Nama profil berhasil diperbarui untuk sesi demo ini.';
+}
+function changePassword(){
+ const oldP=document.getElementById('oldPassword').value;
+ const newP=document.getElementById('newPassword').value;
+ const confirmP=document.getElementById('confirmPassword').value;
+ const msg=document.getElementById('profileMsg');
+ if(oldP!==currentPassword()){msg.textContent='Password saat ini tidak sesuai.';return}
+ if(newP.length<8){msg.textContent='Password baru minimal 8 karakter.';return}
+ if(newP!==confirmP){msg.textContent='Ulangan password baru belum cocok.';return}
+ sessionStorage.setItem('kevvDemoPassword',newP);
+ ['oldPassword','newPassword','confirmPassword'].forEach(id=>document.getElementById(id).value='');
+ msg.textContent='Password demo berhasil diganti. Gunakan password baru saat login berikutnya pada sesi browser ini.';
+}
+function requestWithdraw(){
+ const a=Number(document.getElementById('amount').value),msg=document.getElementById('withdrawMsg');
+ if(!Number.isFinite(a)||a<1000){msg.textContent='Masukkan jumlah minimal Rp1.000.';return}
+ msg.textContent='Simulasi saja: pengajuan belum dikirim dan tidak ada uang yang berpindah. Integrasi backend pembayaran belum tersedia.';
+}
+</script>
+</body></html>
